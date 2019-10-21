@@ -37,6 +37,7 @@ class FlutterRealm {
         } else {
             builder.inMemory().name(inMemoryIdentifier);
         }
+        builder.schemaVersion(1000);
         RealmConfiguration config = builder.build();
 
         Realm.getInstance(config);
@@ -351,8 +352,13 @@ class FlutterRealm {
                 map.put(fieldName, value);
                 continue;
             }
+            if (object.getFieldType(fieldName) == RealmFieldType.OBJECT) {
+                DynamicRealmObject value = object.getObject(fieldName);
+                map.put(fieldName, objectToMap(value));
+                continue;
+            }
             Object value = object.get(fieldName);
-            map.put(fieldName, value);
+            map.put(fieldName, value.toString());
         }
         return map;
     }

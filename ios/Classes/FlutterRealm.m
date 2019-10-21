@@ -32,11 +32,13 @@
                 [sendData addObject:item];
             }
             map[p.name] = sendData;
-        }else {
-            map[p.name] = self[p.name];
+        } else if ([self[p.name] isKindOfClass:[RLMObject class]]){
+            map[p.name] = [self[p.name] toMap];
+        } else {
+            map[p.name] = (NSString*)self[p.name];
         }
     }
-    
+
     return map;
 }
 
@@ -46,26 +48,28 @@
 
 - (instancetype)initWithRealm:(RLMRealm *)realm channel:(FlutterMethodChannel *)channel identifier:(NSString *)identifier {
     self = [super init];
-    
+
     if (self != nil) {
         _realmId = identifier;
         _channel = channel;
         _tokens = [NSMutableDictionary dictionary];
         _realm = realm;
     }
-    
+
     return self;
 }
 
 - (instancetype)initWithArguments:(NSDictionary *)arguments channel:(FlutterMethodChannel *)channel identifier:(NSString *)identifier{
     self = [super init];
-    
+
     if (self != nil) {
         RLMRealmConfiguration *config = [RLMRealmConfiguration defaultConfiguration];
-        
+
         if ([arguments[@"inMemoryIdentifier"] isKindOfClass:[NSString class]]){
             config.inMemoryIdentifier = arguments[@"inMemoryIdentifier"];
         }
+
+        config.schemaVersion = 1000;
         
         _realmId = identifier;
         _channel = channel;
